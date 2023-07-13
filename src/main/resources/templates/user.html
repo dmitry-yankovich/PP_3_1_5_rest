@@ -4,8 +4,30 @@
     <title>Spring Security Example</title>
 </head>
 <body>
-<h1>User, welcome spring boot security page!</h1>
 
+<a th:href="@{/logout}">Logout</a>
+
+<form th:object="${user}">
+    <label for="name">name: </label>
+    <input type="text" th:field="*{name}" id="name" readonly/>
+
+    <label for="lastName">lastname: </label>
+    <input type="text" th:field="*{lastName}" id="lastName" readonly/>
+
+    <label for="email">email: </label>
+    <input type="text" th:field="*{email}" id="email" readonly/>
+
+    <p>
+        <label>Roles:
+            <input type="checkbox" name="roles" disabled
+                   th:each="role : ${allRoles}"
+                   th:text="${role.name}"
+                   th:value="${role.id}"
+                   th:checked="${user.getRoles().contains(role)}"/>
+        </label>
+    </p>
+
+</form>
 
 </body>
 </html>

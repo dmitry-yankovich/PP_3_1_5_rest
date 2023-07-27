@@ -5,15 +5,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,14 +39,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userDao.userList(number);
     }
 
-    public List <Long> userRolesId(User user) {
+    public Set <Long> userRolesId(User user) {
         return userDao.userRolesId(user);
     }
 
     @Override
     @Transactional
-    public void save(User user, BCryptPasswordEncoder bCryptPasswordEncoder, Collection roles) {
-        userDao.save(user, bCryptPasswordEncoder, roles);
+    public void save(User user, Set roles) {
+        userDao.save(user, roles);
     }
 
     @Override
@@ -59,8 +57,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public void update(Long id, User user, BCryptPasswordEncoder bCryptPasswordEncoder, Collection roles) {
-        userDao.update(id, user, bCryptPasswordEncoder, roles);
+    public void update(Long id, User user, Set roles) {
+
+        userDao.update(id, user, roles);
     }
 
     @Override
@@ -80,6 +79,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public boolean userNameIsVacant(User user) {
+
         String userName = user.getUsername();
         if (userName.isEmpty()) {
             return true;
@@ -95,6 +95,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public boolean roleCollectionIsCorrect(Collection<Role> roleCollection) {
+
         return !roleCollection.isEmpty();
     }
 

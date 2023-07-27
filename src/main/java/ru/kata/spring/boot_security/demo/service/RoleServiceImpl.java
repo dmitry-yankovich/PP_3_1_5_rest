@@ -8,6 +8,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class RoleServiceImpl implements RoleService{
@@ -19,12 +20,12 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
-    public List<Role> findAll() {
+    public Set<Role> findAll() {
         return roleDao.findAll();
     }
 
     @Override
-    public List<Role> findRolesByIds(Long[] selectedRolesIds) {
+    public Set<Role> findRolesByIds(Long[] selectedRolesIds) {
         return roleDao.findRolesByIds(selectedRolesIds);
     }
 

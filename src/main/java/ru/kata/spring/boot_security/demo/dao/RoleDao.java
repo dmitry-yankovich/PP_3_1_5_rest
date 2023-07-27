@@ -6,10 +6,10 @@ import ru.kata.spring.boot_security.demo.models.Role;
 import java.util.List;
 import java.util.Set;
 
-@Repository
+//@Repository
 public interface RoleDao {
 
-    List<Role> findAll();
+    Set<Role> findAll();
 
-    List<Role> findRolesByIds(Long[] selectedRolesIds);
+    Set<Role> findRolesByIds(Long[] selectedRolesIds);
 }

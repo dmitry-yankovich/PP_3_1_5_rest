@@ -11,6 +11,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("user")
@@ -26,7 +27,7 @@ public class UserController {
     @GetMapping
     public String user(Principal principal, Model model) {
         User user = userService.findByUsername(principal.getName());
-        List<Role> roles = (List<Role>) roleService.findAll();
+        Set<Role> roles = roleService.findAll();
         model.addAttribute("user", user);
         model.addAttribute("allRoles", roles);
         return "user";

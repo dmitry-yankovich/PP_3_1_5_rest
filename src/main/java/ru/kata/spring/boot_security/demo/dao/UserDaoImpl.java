@@ -1,7 +1,7 @@
 package ru.kata.spring.boot_security.demo.dao;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import ru.kata.spring.boot_security.demo.models.Role;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.models.User;
 import org.springframework.stereotype.Repository;
 
@@ -10,18 +10,26 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Repository
+@Transactional
 public class UserDaoImpl implements UserDao{
 
     @PersistenceContext
-    private EntityManager em;
+    private EntityManager entityManager;
+
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UserDaoImpl(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     public User findByUsername(String username) {
 
-        TypedQuery<User> query = em.createQuery("select u from User u where u.name=:name", User.class);
+        TypedQuery<User> query = entityManager.createQuery("select u from User u where u.name=:name", User.class);
 
         query.setParameter("name", username);
 
@@ -33,7 +41,7 @@ public class UserDaoImpl implements UserDao{
 
     public User findById (Long id) {
 
-        User user = em.find(User.class, id);
+        User user = entityManager.find(User.class, id);
 
         return user;
     }
@@ -49,41 +57,45 @@ public class UserDaoImpl implements UserDao{
 
     public List<User> userList(int number) {
 
-        TypedQuery<User> query = em.createQuery("select u from User u", User.class);
+        //TypedQuery<User> query = entityManager.createQuery("select u from User u", User.class);
+        TypedQuery<User> query = entityManager.createQuery("from User", User.class);
         if (number != 0) {
             query.setMaxResults(number);
         }
         return query.getResultList();
     }
 
-    public List<Long> userRolesId(User user) {
+    public Set<Long> userRolesId(User user) {
 
-        Query query = em.createQuery("SELECT role.id FROM User user JOIN user.roles role WHERE user = :user");
+        Query query = entityManager.createQuery("SELECT role.id FROM User user JOIN user.roles role WHERE user = :user");
         query.setParameter("user", user);
 
-        return query.getResultList();
+        return new HashSet<Long>(query.getResultList());
     }
 
     @Override
-    public void save(User user, BCryptPasswordEncoder bCryptPasswordEncoder, Collection roles) {
+    @Transactional
+    //public void save(User user, BCryptPasswordEncoder bCryptPasswordEncoder, Set roles) {
+    public void save(User user, Set roles) {
 
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
         user.setRoles(roles);
-        em.persist(user);
+        entityManager.persist(user);
     }
 
     @Override
     public void delete(Long id) {
 
-        User user = em.find(User.class, id);
-        em.remove(user);
+        User user = entityManager.find(User.class, id);
+        entityManager.remove(user);
     }
 
     @Override
-    public void update(Long id, User user, BCryptPasswordEncoder bCryptPasswordEncoder, Collection roles) {
+    //public void update(Long id, User user, BCryptPasswordEncoder bCryptPasswordEncoder, Set roles) {
+    public void update(Long id, User user, Set roles) {
 
-        User userToBeUpdated = em.find(User.class, id);
+        User userToBeUpdated = entityManager.find(User.class, id);
 
         userToBeUpdated.setName(user.getName());
         userToBeUpdated.setLastName(user.getLastName());

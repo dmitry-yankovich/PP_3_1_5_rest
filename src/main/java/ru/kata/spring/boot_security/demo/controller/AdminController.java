@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.ModelAndView;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -12,9 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping("admin")
@@ -23,12 +20,9 @@ public class AdminController {
     private final UserService userService;
     private final RoleService roleService;
 
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    public AdminController(UserService userService, RoleService roleService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @GetMapping
@@ -40,15 +34,15 @@ public class AdminController {
     @GetMapping("/new")
     public ModelAndView newPerson() {
 
-        User user = new User();
         ModelAndView mav = new ModelAndView("new");
+
+        User user = new User();
         mav.addObject("user", user);
 
-        List<Role> roles = (List<Role>) roleService.findAll();
-
+        Set<Role> roles = roleService.findAll();
         mav.addObject("allRoles", roles);
 
-        List <Long> userRolesId = new ArrayList<Long>();
+        Set<Long> userRolesId = new HashSet<Long>();
         mav.addObject("userRolesId", userRolesId);
 
         return mav;
@@ -58,11 +52,12 @@ public class AdminController {
     public String edit(Model model, @PathVariable("id") long id) {
 
         User user = userService.findById(id);
-        List<Role> roles = (List<Role>) roleService.findAll();
         model.addAttribute("user", user);
+
+        Set<Role> roles = roleService.findAll();
         model.addAttribute("allRoles", roles);
 
-        List <Long> userRolesId = userService.userRolesId(user);
+        Set<Long> userRolesId = userService.userRolesId(user);
         model.addAttribute("userRolesId", userRolesId);
 
         return "edit";
@@ -74,22 +69,21 @@ public class AdminController {
                          @RequestParam(value = "selectedRoles", required = false) Long[] selectedRoles,
                          Model model) {
 
-        List <Role> userRolesToSet = selectedRoles == null ? new ArrayList<Role>() : roleService.findRolesByIds(selectedRoles);
+        Set<Role> userRolesToSet = selectedRoles == null ? new HashSet<Role>() : roleService.findRolesByIds(selectedRoles);
 
         boolean wrongRoleList = !userService.roleCollectionIsCorrect(userRolesToSet);
-        String wrongRoleListMessage = (wrongRoleList) ? "need to choose at least one role!" : "";
 
         if (bindingResult.hasErrors() || wrongRoleList) {
-            List<Role> roles = (List<Role>) roleService.findAll();
-            List<Long> userRolesId = selectedRoles == null ? new ArrayList<Long>() : Arrays.asList(selectedRoles);
+            Set<Role> roles = roleService.findAll();
+            Set<Long> userRolesId = selectedRoles == null ? new HashSet<Long>() : new HashSet<Long>(Arrays.asList(selectedRoles));
             model.addAttribute("userRolesId", userRolesId);
             model.addAttribute("allRoles", roles);
             model.addAttribute("wrongRoleList", wrongRoleList);
-            model.addAttribute("wrongRoleListMessage", wrongRoleListMessage);
+            model.addAttribute("wrongRoleListMessage", (wrongRoleList) ? "need to choose at least one role!" : "");
             return "new";
         }
 
-        userService.save(user, bCryptPasswordEncoder, userRolesToSet);
+        userService.save(user, userRolesToSet);
         return "redirect:/admin";
     }
 
@@ -105,30 +99,24 @@ public class AdminController {
                          @RequestParam(value = "password", required = false) String password,
                          Model model) {
 
-        selectedRoles = (selectedRoles==null) ? new Long[] {}: selectedRoles;
+        selectedRoles = (selectedRoles == null) ? new Long[]{} : selectedRoles;
 
-        List <Role> userRolesToSet = selectedRoles == null ? new ArrayList<Role>() : roleService.findRolesByIds(selectedRoles);
+        Set<Role> userRolesToSet = selectedRoles == null ? new HashSet<Role>() : roleService.findRolesByIds(selectedRoles);
 
         boolean wrongRoleList = !userService.roleCollectionIsCorrect(userRolesToSet);
-        String wrongRoleListMessage = (wrongRoleList) ? "need to choose at least one role!" : "";
 
-        //List <Role> userRolesToSet = roleService.findRolesByIds(selectedRoles);
-
-        //if (bindingResult.hasErrors() || !userService.additionalCheckIsPassed(user, userRolesToSet)) {
         if (bindingResult.hasErrors() || wrongRoleList) {
-            List<Role> roles = (List<Role>) roleService.findAll();
-            List<Long> userRolesId = selectedRoles == null ? new ArrayList<Long>() : Arrays.asList(selectedRoles);
+            Set<Role> roles = roleService.findAll();
+            Set<Long> userRolesId = selectedRoles == null ? new HashSet<Long>() : new HashSet<Long>(Arrays.asList(selectedRoles));
             model.addAttribute("userRolesId", userRolesId);
             model.addAttribute("allRoles", roles);
             model.addAttribute("wrongRoleList", wrongRoleList);
-            model.addAttribute("wrongRoleListMessage", wrongRoleListMessage);
-
-            //List<Long> userRolesId = Arrays.asList(selectedRoles);
+            model.addAttribute("wrongRoleListMessage", (wrongRoleList) ? "need to choose at least one role!" : "");
 
             return "edit";
         }
 
-        userService.update(id, user, bCryptPasswordEncoder, userRolesToSet);
+        userService.update(id, user, userRolesToSet);
         return "redirect:/admin";
     }
 }

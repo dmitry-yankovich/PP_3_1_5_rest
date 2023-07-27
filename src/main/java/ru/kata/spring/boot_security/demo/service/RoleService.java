@@ -5,11 +5,12 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface RoleService {
-    List<Role> findAll();
+    Set<Role> findAll();
 
-    List<Role> findRolesByIds(Long[] selectedRolesIds);
+    Set<Role> findRolesByIds(Long[] selectedRolesIds);
 
 
 }

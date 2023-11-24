@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.dao;
 
 import org.springframework.stereotype.Repository;
 import ru.kata.spring.boot_security.demo.models.Role;
+import ru.kata.spring.boot_security.demo.models.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -27,5 +28,16 @@ public class RoleDaoImpl implements RoleDao{
         TypedQuery<Role> query = entityManager.createQuery("select r from Role r where r.id in (:selectedRolesIds)", Role.class);
         query.setParameter("selectedRolesIds", Arrays.asList(selectedRolesIds));
         return new HashSet<Role>(query.getResultList());
+    }
+
+    @Override
+    public Role findRoleById(Long id) {
+        TypedQuery<Role> query = entityManager.createQuery("select r from Role r where r.id = :roleId", Role.class);
+        query.setParameter("roleId", id);
+
+        List<Role> roleList = query.getResultList();
+
+        return roleList.isEmpty() ? null : roleList.get(0);
+
     }
 }

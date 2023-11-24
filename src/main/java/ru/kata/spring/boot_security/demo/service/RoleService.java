@@ -12,5 +12,6 @@ public interface RoleService {
 
     Set<Role> findRolesByIds(Long[] selectedRolesIds);
 
+    Role findRoleById(Long id);
 
 }

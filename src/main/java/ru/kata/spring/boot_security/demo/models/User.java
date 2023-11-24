@@ -1,8 +1,11 @@
 package ru.kata.spring.boot_security.demo.models;
 
+import org.hibernate.validator.constraints.Range;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.kata.spring.boot_security.demo.validator.AdminIsExistAmongTheUsers;
 import ru.kata.spring.boot_security.demo.validator.Login;
+import ru.kata.spring.boot_security.demo.validator.RolesListNotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -16,12 +19,15 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Login
+@RolesListNotEmpty
+@AdminIsExistAmongTheUsers
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name", unique = true)
+    //@Column(name = "name", unique = true)
+    @Column(name = "name")
     @NotEmpty(message = "Name should not be empty")
     @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
     private String name;
@@ -29,7 +35,8 @@ public class User implements UserDetails {
     @NotEmpty(message = "Lastname should not be empty")
     @Size(min = 2, max = 50, message = "Lastname should be between 2 and 50 characters")
     private String lastName;
-    @Column(name = "email")
+    //@Column(name = "email")
+    @Column(name = "email", unique = true)
     @NotEmpty(message = "Email should not be empty")
     @Email(message = "Email should be valid")
     private String email;
@@ -38,6 +45,12 @@ public class User implements UserDetails {
     @NotEmpty(message = "Password should not be empty")
     @Size(min=4, message = "Not less 4 symbols")
     private String password;
+
+    @Column(name = "age")
+    @Range(min=1, max=99, message = "Check the age, please")
+    private Byte age;
+
+
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @Size(min = 1, message = "should be more than zero size")
@@ -79,6 +92,10 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    public void setAge(Byte age) { this.age = age; }
+
+    public Byte getAge() { return age; }
+
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
@@ -88,17 +105,19 @@ public class User implements UserDetails {
     }
 
     public Set<Role> getRoles() {
+
         return roles;
     }
 
     public User() {
     }
 
-    public User(String name, String lastName, String email, String password) {
+    public User(String name, String lastName, String email, String password, Byte age) {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.age = age;
     }
 
     @Override
@@ -113,7 +132,8 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        //return name;
+        return email;
     }
 
     @Override
@@ -142,6 +162,7 @@ public class User implements UserDetails {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", age='" + age + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", roles=" + roles +
@@ -153,12 +174,13 @@ public class User implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(lastName, user.lastName) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(roles, user.roles);
+        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(lastName, user.lastName) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(age, user.age) && Objects.equals(roles, user.roles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, lastName, email, password, roles);
+        return Objects.hash(id, name, lastName, email, password, age, roles);
     }
-
 }
+
+

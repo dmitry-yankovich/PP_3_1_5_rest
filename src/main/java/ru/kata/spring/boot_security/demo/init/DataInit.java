@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.init;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,30 +17,29 @@ import java.util.List;
 public class DataInit {
 
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public DataInit(UserService userService, PasswordEncoder passwordEncoder) {
+    public DataInit(UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @PostConstruct
-    @Transactional
-    void postConstruct() {
+    public void postConstruct() {
         List<User> users = userService.userList(0);
 
-        if (users.isEmpty()) {
-            Role admin = new Role("ROLE_ADMIN");
-            Role user = new Role("ROLE_USER");
+        Role admin = new Role("ROLE_ADMIN");
+        Role user = new Role("ROLE_USER");
 
-            userService.save(new User("admin",
-                    "administrator",
-                    "admin@gmail.com",
-                    "super"), new HashSet<>(Arrays.asList(admin)));
-            userService.save(new User("user",
-                    "mister_user",
-                    "user@gmail.com",
-                    "user"), new HashSet<>(Arrays.asList(user)));
-        }
+        userService.save(new User("admin",
+                "administrator",
+                "admin@gmail.com",
+                "super",
+                (byte) 25), new HashSet<>(Arrays.asList(admin)));
+        userService.save(new User("user",
+                "mister_user",
+                "user@gmail.com",
+                "user",
+                (byte) 30), new HashSet<>(Arrays.asList(user)));
     }
 }

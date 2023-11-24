@@ -9,7 +9,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 @Component
-public class LoginConstraintValidator implements ConstraintValidator<Login, User> {
+public class RolesListNotEmptyConstraintValidator implements ConstraintValidator<RolesListNotEmpty, User> {
 
     private UserService userService;
 
@@ -19,7 +19,7 @@ public class LoginConstraintValidator implements ConstraintValidator<Login, User
     }
 
     @Override
-    public void initialize(Login constraintAnnotation) {
+    public void initialize(RolesListNotEmpty constraintAnnotation) {
 
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
@@ -31,12 +31,11 @@ public class LoginConstraintValidator implements ConstraintValidator<Login, User
 //            return true;
 //        }
 
-        if (!userService.userNameIsVacant(user)) {
+        if (!userService.userRolesCollectionIsCorrect(user)) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate(
-                            "{ru.kata.spring.boot_security.demo.validation.Login.message}")
-                    //.addPropertyNode("name").addConstraintViolation();
-                    .addPropertyNode("email").addConstraintViolation();
+                            "{ru.kata.spring.boot_security.demo.validation.RolesListNotEmpty.message}")
+                    .addPropertyNode("roles").addConstraintViolation();
 
             return false;
         }

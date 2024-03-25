@@ -27,6 +27,7 @@ public class AdminIsExistAmongTheUsersConstraintValidator implements ConstraintV
     public void initialize(AdminIsExistAmongTheUsers constraintAnnotation) {
 
         ConstraintValidator.super.initialize(constraintAnnotation);
+        org.springframework.web.context.support.SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     @Override

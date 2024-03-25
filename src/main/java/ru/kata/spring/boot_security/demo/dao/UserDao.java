@@ -30,5 +30,7 @@ public interface UserDao {
 
     public boolean adminIsExistAmongTheOtherUsers(User user);
 
+    public boolean adminIsExistAmongTheOtherUsers(Long id);
+
     public List<Role> userRoles(User user);
 }

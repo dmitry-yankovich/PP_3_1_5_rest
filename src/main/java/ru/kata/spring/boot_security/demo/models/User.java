@@ -53,7 +53,7 @@ public class User implements UserDetails {
 
 
     @ManyToMany(cascade = CascadeType.PERSIST)
-    @Size(min = 1, message = "should be more than zero size")
+    @Size(min = 1, message = "Should be more than zero size")
     //@NotEmpty(message = "choose at least one role")
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

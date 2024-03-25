@@ -17,26 +17,23 @@ public interface UserService extends UserDetailsService {
     User findById (Long id);
     List<User> userList(int number);
 
-    Set <Long> userRolesIdSet(User user);
-
-    //void save(User user, BCryptPasswordEncoder bCryptPasswordEncoder, Set roles);
     void save(User user, Set roles);
 
     void delete(Long id);
 
-    //void update(Long id, User user, BCryptPasswordEncoder bCryptPasswordEncoder, Set roles);
     void update(User user, Set roles);
 
     boolean userNameIsVacant(User user);
 
-    boolean roleCollectionIsCorrect(Collection <Role> roleCollection);
+    boolean roleCollectionIsCorrect(Set <Role> roleCollection);
 
     boolean userRolesCollectionIsCorrect(User user);
 
-    boolean additionalCheckIsPassed(User user, Collection <Role> roleCollection);
-    public boolean isAdmin(User user);
+    boolean isAdmin(User user);
 
-    public boolean adminIsExistAmongTheUsers(User user, RoleService roleService);
+    boolean adminIsExistAmongTheUsers(User user, RoleService roleService);
 
-    public boolean adminIsExistAmongTheOtherUsers(User user);
+    boolean adminIsExistAmongTheOtherUsers(User user);
+
+    boolean adminIsExistAmongTheOtherUsers(Long id);
 }

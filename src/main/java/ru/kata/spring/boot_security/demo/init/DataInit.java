@@ -30,6 +30,7 @@ public class DataInit {
 
         Role admin = new Role("ROLE_ADMIN");
         Role user = new Role("ROLE_USER");
+        //Role user2 = new Role("ROLE_USER");
 
         userService.save(new User("admin",
                 "administrator",

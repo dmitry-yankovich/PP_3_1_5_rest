@@ -112,9 +112,21 @@ public class UserDaoImpl implements UserDao{
 
     @Override
     public boolean adminIsExistAmongTheOtherUsers(User user){
+
+        return adminIsExistAmongTheOtherUsers(user.getId());
+
+//        TypedQuery<Role> query = entityManager.createQuery("SELECT role FROM User user JOIN user.roles role WHERE role.name = :roleAdminName AND NOT user.id = :userId", Role.class);
+//        query.setParameter("roleAdminName", "ROLE_ADMIN");
+//        query.setParameter("userId", user.getId());
+//
+//        return !query.getResultList().isEmpty();
+    }
+
+    @Override
+    public boolean adminIsExistAmongTheOtherUsers(Long id){
         TypedQuery<Role> query = entityManager.createQuery("SELECT role FROM User user JOIN user.roles role WHERE role.name = :roleAdminName AND NOT user.id = :userId", Role.class);
         query.setParameter("roleAdminName", "ROLE_ADMIN");
-        query.setParameter("userId", user.getId());
+        query.setParameter("userId", id);
 
         return !query.getResultList().isEmpty();
     }

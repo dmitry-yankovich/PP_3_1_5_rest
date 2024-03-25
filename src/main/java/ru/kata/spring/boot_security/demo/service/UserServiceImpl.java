@@ -1,13 +1,13 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.springframework.context.annotation.Lazy;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import ru.kata.spring.boot_security.demo.dao.RoleDao;
+
 import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -20,11 +20,10 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private UserDao userDao;
+    private final UserDao userDao;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserServiceImpl(UserDao userDao, BCryptPasswordEncoder bCryptPasswordEncoder) {
-
         this.userDao = userDao;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
@@ -41,18 +40,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public List<User> userList(int number) {
-
         return userDao.userList(number);
-    }
-
-    public Set <Long> userRolesIdSet(User user) {
-        return userDao.userRolesIdSet(user);
     }
 
     @Override
     @Transactional
     public void save(User user, Set roles) {
-
         userDao.save(user, bCryptPasswordEncoder, roles);
     }
 
@@ -65,7 +58,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public void update(User user, Set roles) {
-
         userDao.update(user, bCryptPasswordEncoder, roles);
     }
 
@@ -80,8 +72,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 mapRolesToAuthorities(user.getRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        //return roles == null ? new ArrayList<SimpleGrantedAuthority>() : roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
         return roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
     }
 
@@ -102,12 +93,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public boolean roleCollectionIsCorrect(Collection<Role> roleCollection) {
-
+    public boolean roleCollectionIsCorrect(Set<Role> roleCollection) {
         if (roleCollection == null) {
             return false;
         }
-
         return !roleCollection.isEmpty();
     }
 
@@ -117,18 +106,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public boolean additionalCheckIsPassed(User user, Collection<Role> roleCollection) {
-        return userNameIsVacant(user) && roleCollectionIsCorrect(roleCollection);
-    }
-
-    @Override
     public boolean isAdmin(User user) {
         return userDao.isAdmin(user);
     }
 
     @Override
     public boolean adminIsExistAmongTheUsers(User user, RoleService roleService){
-        if (user.getRoles() != null && !user.getRoles().stream().filter(x->roleService.findRoleById(Long.parseLong(x.getName())).getName().equals("ROLE_ADMIN")).collect(Collectors.toList()).isEmpty()) {
+            if (user.getRoles() != null && !user.getRoles().stream().filter(x->roleService.findRoleById(x.getId()).getName().equals("ROLE_ADMIN")).collect(Collectors.toList()).isEmpty()) {
             return true;
         }
         return adminIsExistAmongTheOtherUsers(user);
@@ -136,7 +120,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public boolean adminIsExistAmongTheOtherUsers(User user){
-
         return userDao.adminIsExistAmongTheOtherUsers(user);
+    }
+
+    @Override
+    public boolean adminIsExistAmongTheOtherUsers(Long id){
+        return userDao.adminIsExistAmongTheOtherUsers(id);
     }
 }
